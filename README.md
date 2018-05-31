@@ -19,6 +19,8 @@ The demos are as follows, in order:
 Todo:
 
 - Music: _use music() to add some music_
+- Title Screen: _very easy to forget, but super important for a finished game!_
+- Polish: _those little things that make games feel great!_
 
 
 You can get Pico-8 to start playing with it for yourself [here](https://www.lexaloffle.com/pico-8.php)
