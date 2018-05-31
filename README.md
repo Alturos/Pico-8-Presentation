@@ -13,6 +13,6 @@ The demos are as follows, in order:
 - Jump: _use btn() to add a jump_
 - Scrolling: _use camera() to scroll the map_
 - Simple Collisions: _add some simple sprite->map collision detection_
-- Sounds: _add some simple sound effects_
+- Sounds: _use sfx() to add some simple sound effects_
 
 You can get Pico-8 to start playing with it for yourself [here](https://www.lexaloffle.com/pico-8.php)
