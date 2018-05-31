@@ -75,7 +75,9 @@ function _update60()
 	
 	if(btn(5) and (onground or jumptime < 36)) then
 		jumping = true
-		-- if we're on the ground then we just started jumping! Play  jump sound!
+		-- if we're on the ground then
+		-- we just started jumping!
+		-- play  jump sound!
 		if(onground) then
 			sfx(8)
 		end
@@ -98,12 +100,16 @@ function _update60()
 			if(frametime > 10) then
 				frametime = 0
 				frameidx += 1
-				-- if our animation is a step down frame, play a step sound!
+				-- if our animation is a
+				-- step down frame, play a
+				-- step sound!
 				if(frameidx == 1) sfx(9)
 				if(frameidx == 3) sfx(10)
 			end
 			if(frameidx > 4) then
-				-- make sure we play our step sound when the frames loop around
+				-- make sure we play our
+				-- step sound when the
+				-- frames loop around
 				sfx(9)
 				frameidx = 1
 			end
@@ -222,7 +228,7 @@ end
 -- demo switching
 
 function loadnextdemo()
-	load('scrolling.p8', 'previous demo')	
+	load('parallax.p8', 'previous demo')	
 end
 __gfx__
 002d2200002d2200002d2200002d2200002d2200002d2200028d2200220000000000000000000000000000000000000000000000000000000000000000000000
