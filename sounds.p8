@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
--- there's more to the world
+-- something for your ear holes!
 -- ava~
 
 step = .01667 -- our framerate, 1/60
@@ -30,13 +30,7 @@ function _update60()
 	crouched = false
 	onground = false
 	
-	-- grab the two cells to our
-	-- left and store them in a
-	-- local variable
 	local leftcells = getleftcells()
-	-- if we're moving left
-	-- check to see if the block
-	-- is solid before moving
 	if(btn(0) and x > 0 and not hardright(leftcells.a) and not hardright(leftcells.b)) then
 		x -= speed * step
 		walking = true 
@@ -44,12 +38,7 @@ function _update60()
 		if(camx > 0 and x - camx < 28) camx -= speed * step
 	end
 
-	-- do the same thing for the
-	-- right side
 	local rightcells = getrightcells()
-	-- if we're moving right
-	-- check to see if the block
-	-- is solid before moving
 	if(btn(1) and x < 248 and not hardleft(rightcells.a) and not hardleft(rightcells.b)) then
 		x += speed * step 
 		walking = true 
@@ -57,12 +46,7 @@ function _update60()
 		if(camx + 128 < 256 and x - camx > 100) camx += speed * step
 	end
 	
-	-- now we grab the cells below
-	-- us
 	local belowcells = getbottomcells()
-	-- if there's solid ground
-	-- below us we're on the ground
-	-- and should stop falling
 	if(hardtop(belowcells.a) or hardtop(belowcells.b)) then
 		onground = true
 		jumptime = 0
@@ -133,29 +117,19 @@ function _draw()
 	print("sounds", 104, 122, 7)
 end
 
--- a function to get the
--- player's effective map cell
 function getplayercell()
 	local xo = 0
 	if(left) xo = -3
 	return getcell(x + 5 + xo, y + 4)
 end
 
--- a function to get the two
--- cells left of the player
 function getleftcells()
-	-- we want to sample two
-	-- points, at the center and
-	-- at the feet. when jumping
-	-- we could be between tiles
 	local cells = {}
 	cells.a = getcell(x + 1, y + 4)
 	cells.b = getcell(x + 1, y + 7)
 	return cells
 end
 
--- a function to get the two
--- cells right of the player
 function getrightcells()
 	local cells = {}
 	cells.a = getcell(x + 6, y + 4)
@@ -163,64 +137,32 @@ function getrightcells()
 	return cells
 end
 
--- a function to get the two
--- cells below the player
 function getbottomcells()
-	-- here we want to sample two
-	-- tiles at either edge of the
-	-- feet as we could be between
-	-- two tiles and we want to be
-	-- standing on the higher of
-	-- the two
 	local cells = {}
 	cells.a = getcell(x + 3, y + 8)
 	cells.b = getcell(x + 5, y + 8)
 	return cells
 end
 
--- a local function to get the
--- map cell from world
--- coordinates
 function getcell(wx, wy)
-	-- create a locally scoped
-	-- table to hold our result
 	local cell = {}
-	
-	-- calculate the map cell
 	cell.x = flr(wx / 8)
 	cell.y = flr((wy - 28)/8)
-	
-	-- return the result
 	return cell
 end
 
--- returns true if the left edge
--- of the cell is solid
 function hardleft(cell)
-	-- grab the sprite id of 
-	-- the map cell we're checking
 	local cellid = mget(cell.x, cell.y)
-	-- find out if 2nd flag is set
 	return fget(cellid, 1)
 end
 
--- returns true if the right edge
--- of the cell is solid
 function hardright(cell)
-	-- grab the sprite id of 
-	-- the map cell we're checking
 	local cellid = mget(cell.x, cell.y)
-	-- find out if 3rd flag is set
 	return fget(cellid, 2)
 end
 
--- returns true if the top edge
--- of the cell is solid
 function hardtop(cell)
-	-- grab the sprite id of 
-	-- the map cell we're checking
 	local cellid = mget(cell.x, cell.y)
-	-- find out if 1st flag is set
 	return fget(cellid, 0)
 end
 
@@ -236,9 +178,9 @@ __gfx__
 008244000082440000824400008244000082440008224400222244000282d200028d2200002d2200000000000000000000000000000000000000000000000000
 00229a0000229a0000229a0000229a0000229a0002229a4004429a00022244002822440000822400000000000000000000000000000000000000000000000000
 00024a0000024a000004aa400042a40000024a000049aa000009aa40002244002222440000824400000000000000000000000000000000000000000000000000
-00004a000000a4000009490000099a400000a400042aad00000aad0000049a4000029a4000229a40000000000000000000000000000000000000000000000000
-0000d5000001d50000050d00000d05000001dd0000d01000000d01000040aad00004aaa000024a90000000000000000000000000000000000000000000000000
-000011000000100000100100001001000000100001000000000010000000151000014a1000019410000000000000000000000000000000000000000000000000
+000a4a00000aa4000009490000099a40000aa400049aad0000aaad0000049a4000029a4000229a40000000000000000000000000000000000000000000000000
+0000d5000001d50000050d00000d05000001dd0000d01000000d01000049aad00004aaa000024a90000000000000000000000000000000000000000000000000
+000011000000100000100100001001000000100001000000000010000000151000914a100091a410000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

@@ -15,11 +15,11 @@ The demos are as follows, in order:
 - Simple Collisions: _add some simple sprite->map collision detection_
 - Sounds: _use sfx() to add some simple sound effects_
 - Parallax: _add some parallax scrolling with different maps_
+- Title Screen: _very easy to forget, but super important for a finished game!_
 
 Todo:
 
 - Music: _use music() to add some music_
-- Title Screen: _very easy to forget, but super important for a finished game!_
 - Polish: _those little things that make games feel great!_
 
 
