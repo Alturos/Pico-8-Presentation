@@ -8,116 +8,66 @@ step = .01667 -- our framerate, 1/60
 
 function _init()
 	menuitem(1, "next demo", loadnextdemo)
-	-- define a variable to track if we're on the title screen
+	
 	ontitle = true
-
-	frames = { 3, 4, 2, 1}
-	catframes = { 10, 11, 12, 11 }
-	frametime	= 0
-	frameidx = 1
-	catframetime = 0
-	catframeidx = 1
-	speed = 30
-	x,y = 8, 60
-	walking = false
-	left = false
-	jumping = false
-	onground = false
-	jumptime = 0
-	crouched = false
 	camx = 0
-	catx = 12
-	caty = 84
+	speed = 30
+
+	-- we're going to move the player specific variables into a table. this will both organize things a bit better and let use reuse some functions later on.
+	player = {
+		x = 4, 
+		y = 84,
+		frames = { 3, 4, 2, 1},
+		jumpframe = 5,
+		fallframe = 6,
+		standframe = 0,
+		walking = false,
+		left = false,
+		jumping = false,
+		onground = false,
+		jumptime = 0,
+		crouched = false,
+		frameidx = 1,
+		frametime	= 0,
+		crouchframe = 9
+	}
+	
+	-- create a table to track the state of the cat, use the same variable names as for the player
+	cat = {
+		x = 11,
+		y = 84,
+		frameidx = 10,
+		frametime	= 0,
+		frames = { 10, 12, 10, 11 },
+		jumpframe = 13,
+		fallframe = 14,
+		standframe = 10,
+		walking = true,
+		running = true,
+		left = false,
+		jumping = false,
+		onground = false,
+		jumptime = 0,
+		run = { 13, 14, 15 },
+		crouchframe = 71
+	}
+	
+	
 end
 
 function _update60()
-	-- if we're on the title, we don't want to update the game.
 	if(ontitle) then
-		-- but we do want to check for button presses so we can start!
-		if(btn(4) or btn(5)) then
-			-- clear the ontitle flag to start the game!	
+		if(btn(4) or btn(5)) then	
 			ontitle = false
 		end
 		return
 	end
-
-	frametime += 1
-	catframetime += 1
-	walking = false
-	jumping = false
-	crouched = false
-	onground = false
-
-	if(catframetime > 20) then
-		catframeidx += 1
-		if(catframeidx > 4) catframeidx = 1
-		catframetime = 0
-		catx += 1
-	end
-
-	local leftcells = getleftcells()
-	if(btn(0) and x > 0 and not hardright(leftcells.a) and not hardright(leftcells.b)) then
-		x -= speed * step
-		walking = true 
-		left = true
-		if(camx > 0 and x - camx < 28) camx -= speed * step
-	end
-
-	local rightcells = getrightcells()
-	if(btn(1) and x < 248 and not hardleft(rightcells.a) and not hardleft(rightcells.b)) then
-		x += speed * step 
-		walking = true 
-		left = false
-		if(camx + 128 < 256 and x - camx > 100) camx += speed * step
-	end
 	
-	local belowcells = getbottomcells()
-	if(hardtop(belowcells.a) or hardtop(belowcells.b)) then
-		onground = true
-		jumptime = 0
-	end
+	-- call our new update player function
+	updateplayer()
+	-- then update the cat!
+	updatecat(cat)
 	
-	if(btn(3) and not walking and onground) then
-		frameidx = 9
-		crouched = true
-	end
-	
-	if(btn(5) and (onground or jumptime < 36)) then
-		jumping = true
-		if(onground) then
-			sfx(8)
-		end
-		onground = false
-		y -= speed * step
-	end
-	
-	if(not onground) then
-		if(jumping) then
-			frameidx = 5
-			jumptime += 1
-		else
-			frameidx = 6
-			y += speed * step
-			jumptime = 36			
-		end
-	else
-		jumptime = 0
-		if(walking) then
-			if(frametime > 10) then
-				frametime = 0
-				frameidx += 1
-				if(frameidx == 1) sfx(9)
-				if(frameidx == 3) sfx(10)
-			end
-			if(frameidx > 4) then
-				sfx(9)
-				frameidx = 1
-			end
-		elseif(not crouched) then
-			frametime = 0
-			frameidx = 0
-		end
-	end
 end
 
 function _draw()
@@ -132,15 +82,13 @@ function _draw()
 		map(0, 26, 12 + round(camx * .70), 23, 35, 8)
 		map(0, 36, -13 + round(camx * .55), 68, 42, 3)
 		map(0, 8, 0, 52, 32, 10)
-		if(onground and walking) then
-			spr(frames[frameidx], x, y, 1, 1, left)
-		else
-			spr(frameidx, x, y, 1, 1, left) 
-		end
-		spr(catframes[catframeidx], catx, caty, 1, 1)
+		-- draw our player
+		drawent(player)
+		-- then the cat
+		drawent(cat)
 	end
 	camera(0, 0)
-	print("title", 108, 122, 7)
+	print("goals", 108, 122, 7)
 end
 
 function drawtitle()
@@ -170,32 +118,204 @@ function drawtitle()
 	print("press ❎ or 🅾️", 37, 96, 7)
 end
 
+--a new function to draw an animated entity
+function drawent(obj)
+	spr(getframe(obj), obj.x, obj.y, 1, 1, obj.left) 
+end
+
+-- a function to reset the frame state of an object. 
+function framereset(obj)
+	-- increment our frame timer here.
+	obj.frametime += 1
+	-- we want to be able to tell if the entity _was_ doing something last frame
+	obj.waswalking = obj.walking
+	obj.wasrunning = obj.running
+	obj.wasonground = obj.onground
+	-- set all our volatile flags here to be re-set as needed.
+	obj.walking = false
+	obj.jumping = false
+	obj.crouched = false
+	obj.onground = false
+	obj.running = false
+end
+
+-- a function to determine if an object is on the ground
+function setonground(obj)
+	local belowcells = getbottomcells(obj)
+	if(hardtop(belowcells.a) or hardtop(belowcells.b)) then
+		obj.onground = true
+		obj.jumptime = 0
+	end
+end
+
+-- move the player's update logic to its own function.
+function updateplayer()
+	framereset(player)
+
+	local cells = getleftcells(player)
+	if(btn(0) and player.x > 0 and not hardright(cells.a) and not hardright(cells.b)) then
+		player.x -= speed * step
+		player.walking = true 
+		player.left = true
+		if(camx > 0 and player.x - camx < 28) camx -= speed * step
+	end
+
+	local cells = getrightcells(player)
+	if(btn(1) and player.x < 248 and not hardleft(cells.a) and not hardleft(cells.b)) then
+		player.x += speed * step 
+		player.walking = true 
+		player.left = false
+		if(camx + 128 < 256 and player.x - camx > 100) camx += speed * step
+	end
+	-- moved the on-ground testing to a function so it can be shared with other objects.
+	setonground(player)
+	
+	if(btn(3) and not player.walking and player.onground) then
+		player.crouched = true
+	end
+	
+	if(btn(5) and (player.onground or player.jumptime < 36)) then
+		player.jumping = true
+		if(player.onground) then
+			sfx(8)
+		end
+		player.onground = false
+		player.y -= speed * step
+	end
+	-- also moved the frame toggling code to a method.
+	updateframe(player)
+	-- our global frame updating code doesn't trigger sounds. So we do that here.
+	if(player.walking and player.frametime == 0) then
+		if(player.frameidx == 1) sfx(9)
+		if(player.frameidx == 3) sfx(10)
+	end
+end
+
+-- create a function to handle updating the cat
+function updatecat()
+	-- first we reset our state.
+	framereset(cat)
+	-- the cat is pretty much always moving
+	cat.walking = true
+	-- determine how far the player is to the cat
+	local dist = abs(player.x - cat.x)
+	-- if the player is too close, start running. if we're already running, we need to expand the range a little bit to prevent resetting the frame each time.
+	if(dist < 24 or cat.wasrunning and dist < 28) then 
+		if(not cat.wasrunning) then
+			-- if we're not already running, reset the frame counter
+			cat.frameidx = 1
+			cat.frametime = 0
+		end
+		cat.running = true
+	elseif(cat.wasrunning) then
+		-- we're far enough away to walk, so if we were running, reset the frame counter
+		cat.frameidx = 1
+		cat.frametime = 0
+	end
+	-- ensure the onground flag is set properly
+	setonground(cat)
+	-- then update our frame
+	updateframe(cat)
+	-- if our frametime has reset to zero, it's time to move a bit.
+	if(cat.frametime == 0 and cat.walking) then
+		if(cat.running) then
+			-- if we're running, go twice as fast
+			cat.x += 2
+		elseif(not cat.running) then
+			-- otherwise walk.
+			cat.x += 1
+		end
+	end
+end
+
+-- move the frame updating code over to a new method, and make it operate on an object rather than the globals. We only need to set the frameidx when we're in a sequence
+function updateframe(obj)
+	if(not obj.onground) then
+		if(obj.jumping) then
+			obj.jumptime += 1
+		else
+			obj.y += speed * step
+			obj.jumptime = 36			
+		end
+	else
+		obj.jumptime = 0
+		if(obj.walking) then
+			if(obj.running) then
+				-- our cat can run, so let's handle that case too
+				if(obj.frametime > 6) then
+					obj.frameidx += 1
+					if(obj.frameidx > 3) obj.frameidx = 1
+					obj.frametime = 0
+				end
+			else
+				if(obj.frametime > 10) then
+					obj.frametime = 0
+					obj.frameidx += 1	
+				end
+				if(obj.frameidx > 4) then
+					obj.frameidx = 1
+				end
+			end
+		elseif(not obj.crouched) then
+			obj.frametime = 0
+		end
+	end
+end
+
 function getplayercell()
 	local xo = 0
 	if(left) xo = -3
-	return getcell(x + 5 + xo, y + 4)
+	return getcell(player.x + 5 + xo, player.y + 4)
 end
 
-function getleftcells()
+-- make this function operate on an object, rather than globals
+function getleftcells(obj)
 	local cells = {}
-	cells.a = getcell(x + 1, y + 4)
-	cells.b = getcell(x + 1, y + 7)
+	cells.a = getcell(obj.x + 1, obj.y + 4)
+	cells.b = getcell(obj.x + 1, obj.y + 7)
 	return cells
 end
 
-function getrightcells()
+-- make this function operate on an object, rather than globals
+function getrightcells(obj)
 	local cells = {}
-	cells.a = getcell(x + 6, y + 4)
-	cells.b = getcell(x + 6, y + 7)
+	cells.a = getcell(obj.x + 6, obj.y + 4)
+	cells.b = getcell(obj.x + 6, obj.y + 7)
 	return cells
 end
 
-function getbottomcells()
+-- update this to take an object and use its coordinates to test for the ground
+function getbottomcells(obj)
 	local cells = {}
-	cells.a = getcell(x + 3, y + 8)
-	cells.b = getcell(x + 5, y + 8)
+	cells.a = getcell(obj.x + 3, obj.y + 8)
+	cells.b = getcell(obj.x + 5, obj.y + 8)
 	return cells
 end
+
+-- we've got a number of different animation states now, so lets simplify the logic to determine the frame
+function getframe(obj)
+	local frame = obj.frameidx
+	if(obj.walking) then
+		if(obj.running) then
+			frame = obj.run[obj.frameidx]
+		else
+			frame = obj.frames[obj.frameidx]
+		end
+	elseif(not obj.onground) then
+		if(obj.jumping) then
+			frame = obj.jumpframe
+		else
+			frame = obj.fallframe
+		end
+	elseif(obj.crouched) then
+		frame = obj.crouchframe
+	else
+		frame = obj.standframe
+	end
+
+	return frame
+end
+
 
 function getcell(wx, wy)
 	local cell = {}
@@ -230,22 +350,22 @@ function loadnextdemo()
 	load('template.p8', 'previous demo')	
 end
 __gfx__
-002d2200002d2200002d2200002d2200002d2200002d2200028d2200220000000000000000000000000000000000000000000000000000000200000000000000
-00822400008224000082240000822400008224000882440028224400022800000000000000000000000000000000000000000000002000200020000000000000
-008244000082440000824400008244000082440008224400222244000282d200028d2200002d2200002000000020000000200000020000dd0020002000000000
-00229a0000229a0000229a0000229a0000229a0002229a4004429a000222440028224400008224000200020202000202020002020200d1dd000dd0dd00000000
-00024a0000024a000004aa400042a40000024a000049aa000009aa4000224400222244000082440002000ddd02000ddd02000ddd002dddd2002dd1dd00000000
-000a4a00000aa4000009490000099a40000aa400049aad0000aaad0000049a4000029a4000229a40002dd1dd002dd1dd002dd1dd000dd0000000ddd000000000
-0000d5000001d50000050d00000d05000001dd0000d01000000d01000049aad00004aaa000024a9000ddddd000ddddd000ddddd0002d0000000000d200000000
-000011000000100000100100001001000000100001000000000010000000151000914a100091a410002020200202000200022020000000000000000000000000
+002d2200002d2200002d2200002d2200002d2200002d2200028d2200220000000000000000000000000000000000000000000000000000000000000000000000
+00822400008224000082240000822400008224000882440028224400022800000000000000000000000000000000000000000000000000002000000000000000
+008244000082440000824400008244000082440008224400222244000282d200028d2200002d2200002000000020000000200000020000200200000000020000
+00229a0000229a0000229a0000229a0000229a0002229a4004429a00022244002822440000822400020002020200020202000202020000dd0020002000200020
+00024a0000024a000004aa400042a40000024a000049aa000009aa4000224400222244000082440002000ddd02000ddd02000ddd0200d1dd000dd0dd002000dd
+000a4a00000aa4000009490000099a40000aa400049aad0000aaad0000049a4000029a4000229a40002dd1dd002dd1dd002dd1dd002dddd2002dd1dd0002d1dd
+0000d5000001d50000050d00000d05000001dd0000d01000000d01000049aad00004aaa000024a9000ddddd000ddddd000ddddd0000dd0000000ddd00000ddd0
+000011000000100000100100001001000000100001000000000010000000151000914a100091a410002020200202000200022020002d0000000000d200002200
 00000000555555555000000530000003000000000000000000000000000000000000000000000000000000000000000000000006000000000000000060000000
 00000000555555dd550000ddb30000bb000000000000000000000000000000000000000000000000000000000000000000000077000000000000000066000000
-0000000055555d5555500d553b300b33000000000000000000000000000000000044440000000000000000000000000000000766000000666600000066600000
-00000000555555dd5555d5ddb3b333bb000000bbbb00000000000000000000000444444004400000000000000000000000006677000066776666000066660000
-000000005555dd555555dd553b33bb330000bb333333000000000000000000004444454444440440000000000000000000067766000677666666600066666000
-0000000055dd55dd55dd55ddb3bb33bb00bb33bbbbbbbb0000000000000000004444445444454444000000000000000000776677007766776666660066666600
-000000005d55dd555d55dd553b33bb330b33bb333333333000000000000000005444445444445444000000000000000007667766076677666666666066666660
-0000000055dd55dd55dd55dd33bb33bb33bb33bbbbbbbbbb00000000000000005444444454445445000000000000000066776677667766776666666666666666
+0000000055555d5555500d553b300b33000000000000000000000000000000000033bb0000000000000000000000000000000766000000666600000066600000
+00000000555555dd5555d5ddb3b333bb000000bbbb000000000000000000000003bbbbb003b00000000000000000000000006677000066776666000066660000
+000000005555dd555555dd553b33bb330000bb333333000000000000000000003bb3b4bb3bbb03b0000000000000000000067766000677666666600066666000
+0000000055dd55dd55dd55ddb3bb33bb00bb33bbbbbbbb0000000000000000003b43bbbb3bb43bbb000000000000000000776677007766776666660066666600
+000000005d55dd555d55dd553b33bb330b33bb3333333330000000000000000003b434b0b4bbbb4b000000000000000007667766076677666666666066666660
+0000000055dd55dd55dd55dd33bb33bb33bb33bbbbbbbbbb00000000000000000444444004440440000000000000000066776677667766776666666666666666
 dd55dd5500000003300000000000000550000000bb33bb330077770000000000555555555d55dd55555555553333333300000006776677666666666660000000
 55dd55dd000000bbbb000000000000dd5500000033bb33bb07777770077000005555555555dd55ddd5555555bbbbbbbb00000077667766776666666666000000
 dd55dd5500000b333330000000000d5555500000bb33bb337777767777770770555555555555dd555d5555553333333300000766776677666666666666600000
@@ -254,22 +374,22 @@ dd55dd550003bb33333330000005dd5555555000bb33bb3367777767777767775555555555555d55
 55dd55dd00bb33bbbbbbbb0000dd55dd5555550033bb33bb677777776777677655555555555555ddd5d5d555bbbbbbbb0077667766dd55dd5555556666666600
 dd55dd550b33bb33333333300d55dd5555555550bb33bb33066677777667770055555555555555555d5d5d553333333307667755dd55dd555555555556666660
 55dd55dd33bb33bbbbbbbbbb55dd55dd5555555533bb33bb00066666677000005555555555555555d5d5d5d5bbbbbbbb55dd55dd55dd55dd5555555555665555
-3b3b3b3b444444443b3b3b3b3b3b3b3b44444b3b3b3444443b44444444444b3b3b344b3b000000003b3b3b3b0000000077667766776677666666666666666666
-b3b3b3b344444444b3b3b3b3b3b3b3b3444443b3b3b44444b3b44444444444b3b3b443b300000000b3b3b3b30000000066776677667766776666666666666666
-44344434444444443b34443444344b3b44444434443444443b44444444444b3b44344434000000003b344b3b0000000077667766776677666666666666666666
-4444444444444444b3b44444444444b34444444444444444b3b44444444444b34444444400000000b3b444b30000000055d76677667766776666666666666555
-44444444444444443b44444444444b3b44444444444444443b44444444444b3b44444444000000003b444b3b00000000dd557766776677666666666666665555
-4444444444444444b3b44444444444b34444444444444444b3b44444444444b34444444400000000b3b444b30000000055dd5577667766776666666666555555
-44444444444444443b44444444444b3b44444444444444443b44444444444b3b44444444000000003b444b3b00000000dd55dd55776677666666666655555555
-4444444444444444b3b44444444444b34444444444444444b3b44444444444b34444444400000000b3b444b30000000055dd55dd667766776666666655555555
+33333333444444443333333333333333444444333344444433444444444443333344433300000000333333330000000077667766776677666666666666666666
+33333333444444443333333333333333444443333334444433344444444444333334443300000000333333330000000066776677667766776666666666666666
+44344434444444443334443444344333444444344344444433444444444443334344443400000000334443330000000077667766776677666666666666666666
+44444444444444443334444444444433444444444444444433344444444444334444444400000000333444330000000055d76677667766776666666666666555
+444444444444444433444444444443334444444444444444334444444444433344444444000000003344433300000000dd557766776677666666666666665555
+44444444444444443334444444444433444444444444444433344444444444334444444400000000333444330000000055dd5577667766776666666666555555
+444444444444444433444444444443334444444444444444334444444444433344444444000000003344433300000000dd55dd55776677666666666655555555
+44444444444444443344444444444433444444444444444433344444444444334444444400000000333444330000000055dd55dd667766776666666655555555
 00000222220000000111111001111111111111111001111111111100000000000000000000000000000000000000000000000000000000000000000000000000
 00002e22222000000118811101188188888881881011881188888110000000000000000000000000000000000000000000000000000000000000000000000000
 0002eee2222200000118881111188188888881881118881888888810000000000000000000000000000000000000000000000000000000000000000000000000
 00088e22444000000118888111188188111111881188811881118810000000000000000000000000000000000000000000000000000000000000000000000000
-00822822534400000118888811188188111111881888111881118810000000000000000000000000000000000000000000000000000000000000000000000000
-00222824434400000118888881188188111111888881101881118810000000000000000000000000000000000000000000000000000000000000000000000000
-02222224444440000118818888188188888811888811001881118810000000000000000000000000000000000000000000000000000000000000000000000000
-02222224ee4400000118811888888188888811888881101881118810000000000000000000000000000000000000000000000000000000000000000000000000
+00822822534400000118888811188188111111881888111881118810000002020000000000000000000000000000000000000000000000000000000000000000
+0022282443440000011888888118818811111188888110188111881000000ddd0000000000000000000000000000000000000000000000000000000000000000
+02228224444440000118818888188188888811888811001881118810002dd1dd0000000000000000000000000000000000000000000000000000000000000000
+02222224e4440000011881188888818888881188888110188111881000d222d00000000000000000000000000000000000000000000000000000000000000000
 02222244444000000118811188888188111111881888111881118810000000000000000000000000000000000000000000000000000000000000000000000000
 02222244420000000118811118888188111111881188811881118810000000000000000000000000000000000000000000000000000000000000000000000000
 022299a7779900000118811111888188888881881118881888888810000000000000000000000000000000000000000000000000000000000000000000000000

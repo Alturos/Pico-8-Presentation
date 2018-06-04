@@ -16,11 +16,21 @@ The demos are as follows, in order:
 - Sounds: _use sfx() to add some simple sound effects_
 - Parallax: _add some parallax scrolling with different maps_
 - Title Screen: _very easy to forget, but super important for a finished game!_
+- Goals: _A reason to play the game!_
 
 Todo:
 
+- Obstacles: _Always something in the way_
+- Failure: _You can never win if you can't lose!_
+- SFX Digression: Waveforms, Instruments, Speed
 - Music: _use music() to add some music_
 - Polish: _those little things that make games feel great!_
+-- cat setup phase
+-- get ready state
+-- landing frame
+-- hard landing animation
+-- landing sfx
+
 
 
 You can get Pico-8 to start playing with it for yourself [here](https://www.lexaloffle.com/pico-8.php)
