@@ -57,9 +57,15 @@ function _update()
 	-- if we're walking
 	if(walking) then
 		-- do all the frame updating
-		-- stuff we just coded
-		if(frametime > 5)	frametime = 0 frameidx += 1
-		if(frameidx > 4) frameidx = 1
+		-- stuff we just coded in 
+		-- the last demo.
+		if(frametime > 5) then
+			frametime = 0 
+			frameidx += 1
+		end
+		if(frameidx > 4) then
+			frameidx = 1
+		end
 	else
 		-- otherwise, reset the
 		-- animation state.
@@ -70,7 +76,7 @@ end
 
 function _draw()
 	cls(12)
-	map(0,0,0,28,16,16)
+	map(0, 0, 0, 28, 16, 16)
 	if(walking) then
 		-- if we're walking, draw our
 		-- animation pass in our

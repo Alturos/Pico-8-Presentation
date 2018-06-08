@@ -117,7 +117,7 @@ end
 
 function _draw()
 	cls(12)
-	map(0,0,0,28,16,16)
+	map(0, 0, 0, 28, 16, 16)
 	if(onground and walking) then
 		spr(frames[frameidx], x, y, 1, 1, left)
 	else 
@@ -125,7 +125,7 @@ function _draw()
 		-- we could be jumping,
 		-- crouching or falling,
 		-- so use frameidx
-		spr(frameidx,x,y,1,1,left) 
+		spr(frameidx, x, y, 1, 1, left) 
 	end
 	print("jump", 112, 122, 7)
 end

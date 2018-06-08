@@ -215,7 +215,7 @@ end
 -- demo switching
 
 function loadnextdemo()
-	load('sounds.p8', 'previous demo')	
+	load('sound_digression.p8', 'previous demo')	
 end
 __gfx__
 002d2200002d2200002d2200002d2200002d2200002d2200028d2200220000000000000000000000000000000000000000000000000000000000000000000000
