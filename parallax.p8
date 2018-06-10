@@ -89,7 +89,7 @@ function _update60()
 				frameidx = 1
 			end
 		elseif(not crouched) then
-			frametime = 0
+			frametime = 0 
 			frameidx = 0
 		end
 	end
