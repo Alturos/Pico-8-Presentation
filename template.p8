@@ -2,7 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
 -- it begins!
--- ava~
+-- bright moth games
 
 -- the init method is called
 -- when the cartridge is 

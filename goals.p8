@@ -2,7 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
 -- now that's a title!s
--- ava~ 
+-- bright moth games
 
 step = .01667 -- our framerate, 1/60
 
@@ -72,6 +72,11 @@ function _update60()
 			player.hoopsacquired += 1
 		end
 	end
+
+	-- if we're at the exit and got all the hoops, we win!
+	if(#hoops < 1 and isexit(getplayercell())) then
+		_init()
+	end
 end
 
 function _draw()
@@ -88,7 +93,7 @@ function _draw()
 			--draw our open door over the maps closed one
 			spr(106, 240, 76, 2, 2)
 		end
-		
+
 		-- draw our player
 		drawent(player)
 
@@ -217,7 +222,7 @@ end
 function getplayercell()
 	local xo = 0
 	if(left) xo = -3
-	return getcell(player.x + 5 + xo, player.y + 4)
+	return getcell(player.x + 4 + xo, player.y + 4)
 end
 
 -- make this function operate on an object, rather than globals
@@ -288,6 +293,11 @@ end
 function hardtop(cell)
 	local cellid = mget(cell.x, cell.y)
 	return fget(cellid, 0)
+end
+
+function isexit(cell)
+	local cellid = mget(cell.x, cell.y)
+	return fget(cellid, 7)
 end
 
 -->8

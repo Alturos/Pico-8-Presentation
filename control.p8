@@ -2,7 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
 -- ok, we'll move
--- ava~
+-- bright moth games
 
 step = .03333 -- our framerate, 1/30
 

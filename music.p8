@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
--- now that's a title!s
+-- now that's a title!
 -- ava~ 
 
 step = .01667 -- our framerate, 1/60

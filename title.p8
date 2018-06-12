@@ -1,8 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
--- now that's a title!S
--- ava~ 
+-- now that's a title!
+-- bright moth games
 
 step = .01667 -- our framerate, 1/60
 

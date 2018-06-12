@@ -2,7 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
 -- let's draw a sprite!
--- ava~
+-- bright moth games
 
 function _init()
 	menuitem(1, "next demo", loadnextdemo)

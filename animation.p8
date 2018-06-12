@@ -1,8 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
--- starter template
--- ava~
+-- animation brings life!
+-- bright moth games
 
 
 function _init()
