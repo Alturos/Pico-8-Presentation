@@ -11,7 +11,6 @@ function _init()
 	frames = { 3, 4, 2, 1}
 	frametime	= 0
 	frameidx = 1
-	
 	speed = 30
 	x,y = 60, 60
 	walking = false
