@@ -11,12 +11,16 @@ function _init()
 	ontitle = true
 	camx = 0
 	speed = 30
-	-- we're expanding the map so lets store it's width
+	-- we're expanding the map so
+	-- lets store it's width
 	mapwidth = 46
 	hoopframe = 1
 	hoopframetime = 0
 	hoopframes = {88, 89, 90, 91, 90, 92}
-	-- we're adding a generic collides method so we need to be able to track our hitbox edges.
+	-- we're adding a generic
+	-- collides method so we need
+	-- to be able to track our
+	-- hitbox edges.
 	hoops = {
 		{ x = 76, y = 48, left = 1, right = 6 },
 		{ x = 168, y = 40, left = 1, right = 6 },
@@ -31,7 +35,9 @@ function _init()
 		fallframe = 6,
 		standframe = 0,
 		walking = false,
-		-- renamed left to faceleft to make our collide method easier to read
+		-- renamed left to faceleft
+		-- to make our collide method
+		-- easier to read
 		faceleft = false,
 		jumping = false,
 		onground = false,
@@ -41,12 +47,16 @@ function _init()
 		frametime	= 0,
 		crouchframe = 9,
 		hoopsacquired = 0,
-		-- as with hoops, store hitbox edges
+		-- as with hoops, store hitbox
+		-- edges
 		left = 3, 
 		right = 5
 	}
 	
-	-- create a table to track the state of the cat, use the same variable names as for the player
+	-- create a table to track the
+	-- state of the cat, use the
+	-- same variable names as for
+	-- the player
 	cat = {
 		x = 180,
 		y = 56,
@@ -64,7 +74,8 @@ function _init()
 		jumptime = 0,
 		run = { 13, 14, 15 },
 		crouchframe = 71,
-		-- as above, but also store the top as it's non-0
+		-- as above, but also store
+		-- the top as it's non-0
 		top = 4,
 		left = 2,
 		right = 8
@@ -116,7 +127,8 @@ function _draw()
 		map(0, 36, -13 + round(camx * .55), 68, 42, 3)
 		map(0, 8, 0, 52, mapwidth, 10)
 		if(#hoops < 1) then
-			--draw our open door over the maps closed one
+			--draw our open door over
+			-- the map's closed one
 			spr(106, 320, 76, 2, 2)
 		end
 		
@@ -212,58 +224,84 @@ function updateplayer()
 	end
 end
 
--- create a function to handle updating the cat
+-- create a function to handle
+-- updating the cat
 function updatecat()
 	-- first we reset our state.
 	framereset(cat)
-	-- the cat is pretty much always moving
+	-- the cat is pretty much
+	-- always moving
 	cat.walking = true
-	-- determine how far the player is to the cat
+	-- determine how far the
+	-- player is to the cat
 	local dist = abs(player.x - cat.x)
-	-- if we're far away from the player, lie down.
+	-- if we're far away from the
+	-- player, lie down.
 	if(dist > 56) then
 		cat.walking = false
 		cat.crouched = true
 	end
-	-- if the player is close, start running. if we're already running, we need to expand the range a little bit to prevent resetting the frame each time.
+	-- if the player is close,
+	-- start running. if we're
+	-- already running, we need to
+	-- expand the range a little
+	-- bit to prevent resetting 
+	-- the frame each time.
 	if(dist < 48 or cat.wasrunning and dist < 50) then 
 		if(not cat.wasrunning) then
-			-- if we're not already running, reset the frame counter
+			-- if we're not already
+			-- running, reset the frame
+			-- counter
 			cat.frameidx = 1
 			cat.frametime = 0
 		end
 		cat.running = true
 	elseif(cat.wasrunning) then
-		-- we're far enough away to walk, so if we were running, reset the frame counter
+		-- we're far enough away to
+		-- walk, so if we were running
+		--, reset the frame counter
 		cat.frameidx = 1
 		cat.frametime = 0
 	end
-	-- ensure the onground flag is set properly
+	-- ensure the onground flag is
+	-- set properly
 	setonground(cat)
 	-- then update our frame
 	updateframe(cat)
-	-- if our frametime has reset to zero, it's time to move a bit.
+	-- if our frametime has reset
+	-- to zero, it's time to move
+	-- a bit.
 	if(cat.frametime == 0 and cat.walking) then
 		-- set our walking speed
 		local speed = 1
-		-- determine where to look for a map tile, 8 + our speed of 1 gets the tile directly to our right
+		-- determine where to look
+		-- for a map tile, 8 + our
+		-- speed of 1 gets the tile 
+		-- directly to our right
 		cx = cat.x + 9
 		if(cat.running) then
-			-- if we're running, go twice as fast
+			-- if we're running, go
+			-- twice as fast
 			speed += 1
 			cx += 1
 		end
 		if(cat.faceleft) then
-			-- if we're going left, invert the speed
+			-- if we're going left,
+			-- invert the speed
 			speed *= -1
-			-- we also need to check to the left now instead
+			-- we also need to check to
+			-- the left now instead
 			cx = cat.x - (cat.running and 2 or 1)
 		end
 
-		-- see if there's a hard cell where we're trying to go.
+		-- see if there's a hard cell
+		-- where we're trying to go.
 		local cell = getcell(cx, cat.y + 4)
 		if(cat.faceleft and hardright(cell)) then
-			-- if we hit a wall to the left, stop (or slow down if running) and turn around
+			-- if we hit a wall to the
+			-- left, stop (or slow down
+			-- if running) and turn
+			-- around
 			cat.faceleft = false
 			speed += 1
 		elseif(not cat.faceleft and hardleft(cell)) then
@@ -276,9 +314,12 @@ function updatecat()
 	end
 end
 
--- create a function to deal with hit detection
+-- create a function to deal
+-- with hit detection
 function collides(obj_a, obj_b)
-	-- first we determine our hitbox edges. the bottom is always + 8
+	-- first we determine our
+	-- hitbox edges. the bottom is
+	-- always + 8
 	local right_a = obj_a.x + (obj_a.right or 8)
 	local left_a = obj_a.x + (obj_a.left or 0)
 	local right_b = obj_b.x + (obj_b.right or 8)
@@ -286,7 +327,9 @@ function collides(obj_a, obj_b)
 	local top_a = obj_a.y + (obj_a.top or 0)
 	local top_b= obj_b.y + (obj_a.top or 0)
 
-	-- if the sprite's facing left way, we need to invert the side edges
+	-- if the sprite's facing left
+	-- way, we need to invert the
+	-- side edges
 	if(obj_a.faceleft) then
 		right_a = obj_a.x + 8 - obj_a.left
 		left_a =  obj_a.x + 7 - obj_a.right
@@ -316,7 +359,8 @@ function updateframe(obj)
 		obj.jumptime = 0
 		if(obj.walking) then
 			if(obj.running) then
-				-- our cat can run, so let's handle that case too
+				-- our cat can run, so let's
+				-- handle that case too
 				if(obj.frametime > 6) then
 					obj.frameidx += 1
 					if(obj.frameidx > 3) then
@@ -373,7 +417,8 @@ function getframe(obj)
 			frame = obj.fallframe
 		end
 	elseif(obj.walking) then
-		-- make sure we handle the running case for the cat!
+		-- make sure we handle the
+		-- running case for the cat!
 		if(obj.running) then
 			frame = obj.run[obj.frameidx]
 		else
