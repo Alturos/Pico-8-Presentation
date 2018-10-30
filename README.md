@@ -24,5 +24,6 @@ The demos are as follows, in order:
 - Polish: _those little things that make games feel great!_
 
 You can find the video of the presentation [here](https://www.youtube.com/watch?v=jiIdTJUchOs)
+
 See the accompanying slide deck [here](https://docs.google.com/presentation/d/1Kt4XuO7sWqmcmwPT4L1VlO9KfxqMplTRwpioEk5UOMc/edit?usp=sharing)!
 You can get Pico-8 to start playing with it for yourself [here](https://www.lexaloffle.com/pico-8.php)!
